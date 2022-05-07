@@ -24,7 +24,6 @@ Thise guide will explain how to fill out the three fields in credentials.txt
 
 `http://localhost:3000/#access_token=` _<**this is your access token**>_ `&scope=chat%3Aread+chat%3Aedit&token_type=bearer`  
 _General note: be sure to remove the '< >' characters_
-
 #### 4. Enter your acess token in the OAUTH_TOKEN field (ex: OAUTH_TOKEN=1hd23jdijh3jjndf3j )
 Example:
   ```
