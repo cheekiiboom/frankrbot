@@ -45,7 +45,7 @@ console.log("Connected to " + CHANNEL_NAME+"...");
 let numMsg = 0;
 let enabled = true;
 
-let respondRate = 5;
+let respondRate = 0; // set to 5
 
 // Called every time a message comes in
 function onMessageHandler(target, context, msg, self) {
@@ -61,13 +61,18 @@ function onMessageHandler(target, context, msg, self) {
     const commandName = msg.trim() + "";
 
     // Check if messager is a moderator
-    const isMod = context['badges-raw'].includes("broadcaster") || context['badges-raw'].includes("moderator");
-
+    
+    let isMod = false;
+    if(context['badges-raw'] != null) {
+      isMod = context['badges-raw'].includes("broadcaster") || context['badges-raw'].includes("moderator");
+    } else {
+      isMod = false;
+    }
 
     /**
      * Logic to trigger Frank commands:
      * 
-     * Generate a random number [0-9]
+     * Generate a random number
      * 
      */
     const randNum = Math.floor((Math.random() * 13) + 1);
@@ -78,46 +83,53 @@ function onMessageHandler(target, context, msg, self) {
 
       define(target, context, msg, self);
 
-    } else if(commandName.includes("!h")) {
-      client.say(target,"frankbot commands: !setfreq <respond every x # of messages>, !offfrank [disable auto frankbot], !onfrank [enable auto frankbot]");
+    } else if  (commandName.includes("!hops")) {
+      client.say(target, "Yay hops! 🐇");
+    } else if (commandName.includes("!kaka")) {
+      client.say(target, "💩💩💩");
+    }
+    
+    else if(commandName.localeCompare("!h") == 0) {
+      client.say(target,"frankrbot commands: !setfreq <respond every x # of messages>, !offfrank [disable auto frankrbot], !onfrank [enable auto frankrbot]");
     } else if(commandName.includes("!offfrank") && isMod) {
-      client.say(target, "frankbot: Bye bye! OhMyDog");
+      client.say(target, "Bye bye! OhMyDog");
       enabled = false;
     } else if (commandName.includes("!onfrank") && isMod) { 
-      client.say(target, "frankbot: I'm back! FrankerZ");      
+      client.say(target, "I'm back! FrankerZ");      
       enabled = true;
-    } else if (commandName.includes("!setfreq") && isMod) {
+    } else if (commandName.includes("!setfreq ") && isMod) {
       const arg = commandName.substring("!setfreq ".length,commandName.length);
       if(isNaN(arg) || arg == '') {
         client.say(target,"!setfreq requires a number")
       } else if (arg >= 0){
         if(arg != 1) {
-          client.say(target,"frankbot: I will try to respond every " + arg + " messages!")
+          client.say(target,"I will try to respond every " + arg + " messages!")
         } else {
-          client.say(target,"frankbot: I will try to respond every " + arg + " message!")
+          client.say(target,"I will try to respond every " + arg + " message!")
         }
       } else {
-        client.say(target,"frankbot: I can't go back in time!")        
+        client.say(target,"I can't go back in time!")        
       }
       respondRate = arg;
     }
     else if (commandName.substring(0, 1) === "!") { // ! used, but not recognized
       console.log("! - unknown command");
     } else if (!enabled) {
-      console.log("frankbot is disabled. use !on to re-enable")
+      console.log("frankrbot is disabled. use !on to re-enable")
     }
     else if (commandName.includes("yay ")) { // responds if message contains 'yay '
-      client.say(target, "yay " + context.username + "! OhMyDog")
+      client.say(target, " yay " + context.username + "! OhMyDog")
     }
     else if (numMsg % respondRate != 0 && respondRate != 0) { // waits for # of msgs to exceed response rate
       console.log("waiting...")
     }
-    else if (randNum < 7 && !commandName.includes("frankbot:")) { // FRANK-IFY MESSAGE
+    // randnum [ 1 , 13]
+    else if (randNum < 10) { // FRANK-IFY MESSAGE
       console.log("running Frank-ify");
 
       frank(target, context, msg, self);
 
-    } else if (randNum >= 7 && randNum <= 13 && !commandName.includes("frankbot:")) { // Runs if randNum is 
+    } else if (randNum >= 10 && randNum <= 13) { // Runs if randNum is 
       console.log("running emoji")
       emoji(target, context, msg, self);
 
@@ -128,14 +140,7 @@ function onMessageHandler(target, context, msg, self) {
       //
     }
   }
-
-
 }
-
-// Get command args
-// async function getArgs(msg, cmdName) {
-//   return cmdName.substring(cmdName.length,msg.length);
-// }
 
 // Function called 19 times out every 20 messages
 async function emoji(target, context, msg, self) {
@@ -151,7 +156,7 @@ async function emoji(target, context, msg, self) {
   try { // try getting first emoji from json
       const rand = Math.floor(Math.random() * data.length);
       const emoji = data[rand]['character'];
-      client.say(target, "frankbot: "+emoji+"");
+      client.say(target, ""+emoji+"");
       console.log(emoji); // output to chat
   } catch (error) {
       console.log("ERROR: could not find emoji");
@@ -196,8 +201,6 @@ async function frank(target, context, msg, self) {
       }
   }
   let words = ""; // initialize output string
-  
-  const data = [];
 
   const row = [];
   const col = [];
@@ -207,20 +210,17 @@ async function frank(target, context, msg, self) {
 
   for (let index = 0; index < adjIndex.length; index++) {
     if (adjIndex[index]) {
-      //console.log(sentence[index]);
-      const url = 'https://www.dictionaryapi.com/api/v3/references/thesaurus/json/' + sentence[index] + '?key=1e9ca186-79a5-4154-8da2-fe9da5f63738'; // api endpoint url
+      const url = 'https://api.datamuse.com/words?rel_ant='+sentence[index]; // api endpoint url
       const response = await fetch(url); // urlfetch json
-      data[index] = await response.json(); // store json
+      data = await response.json(); // store json
 
       try {
-        row[index] = Math.floor(Math.random() * data[index][0]['meta']['ants'].length); // random row
-        col[index] = Math.floor(Math.random() * data[index][0]['meta']['ants'][row[index]].length); // random col
-        
-        ants[index] = data[index][0]['meta']['ants'][row[index]][col[index]];
+        //console.log(sentence[index])
+        ants[index] = data[0]['word'];
         
       } catch (error) {
         admitOut = false;
-        console.log("ERROR: antonym(s) undefined | output: false");
+        console.log("ERROR: '"+ sentence[index] + "' undefined | output: false");
       }
     }
   }
@@ -229,7 +229,6 @@ async function frank(target, context, msg, self) {
     if (adjIndex[index]) {
       if (ants[index] == undefined) {
         console.log("ERROR: undefined | using original word");
-        numMsg--;
         words = words + (sentence[index] + "");
       } else {
         admitOut = true;
@@ -244,11 +243,14 @@ async function frank(target, context, msg, self) {
       }
     }
   }
-  const frankEmotes = ["FrankerZ", "OhMyDog", "ResidentSleeper", "", "", ""];
+  const frankEmotes = ["FrankerZ", "OhMyDog", "ResidentSleeper", "", ""];
   const randEmote = Math.floor(Math.random() * frankEmotes.length);
-  console.log(randEmote)
   if (admitOut) {
-    client.say(target, "frankbot: " + words + " " + frankEmotes[randEmote]);
+    client.say(target, "" + words + " " + frankEmotes[randEmote]);
+  } else {
+    console.log("Frank-ify failed!")
+    emoji(target, context, msg, self);
+    numMsg--;
   }
 }
 
