@@ -1,6 +1,6 @@
-# frankbot v0.0.1 - CheekiiBoom
+# frankrbot v0.0.1 - CheekiiBoom
 
-Welcome to frankbot!
+Welcome to frankrbot!
 
 After downloading and extracting the zip files,
 this Twitch chat bot requires an edit to the contents of credentials.txt  
