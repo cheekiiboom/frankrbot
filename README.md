@@ -1,6 +1,6 @@
-# frankbot v0.0.1 - CheekiiBoom
+# frankrbot v0.0.1 - CheekiiBoom
 
-Welcome to frankbot!
+Welcome to frankrbot!
 
 After downloading and extracting the zip files,
 this Twitch chat bot requires an edit to the contents of credentials.txt  
@@ -20,11 +20,10 @@ Thise guide will explain how to fill out the three fields in credentials.txt
 - Go to the url in your favorite browser
 - Twitch will prompt you to authorize the bot application
 - After you press authorize, you are redirected to a different URL. _Ignore the message that says something went wrong (may say: This site can't be reached)_
-- On this web page, look at the searchbar, and copy and paste the access token from the URL
+- On this web page, look at the searchbar, and **ONLY** copy and paste the access token from the URL as shown below
 
 `http://localhost:3000/#access_token=` _<**this is your access token**>_ `&scope=chat%3Aread+chat%3Aedit&token_type=bearer`  
 _General note: be sure to remove the '< >' characters_
-
 #### 4. Enter your acess token in the OAUTH_TOKEN field (ex: OAUTH_TOKEN=1hd23jdijh3jjndf3j )
 Example:
   ```
