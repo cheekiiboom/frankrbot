@@ -45,7 +45,7 @@ console.log("Connected to " + CHANNEL_NAME+"...");
 let numMsg = 0;
 let enabled = true;
 
-let respondRate = 0; // set to 5
+let respondRate = 0; // set to 5 
 
 // Called every time a message comes in
 function onMessageHandler(target, context, msg, self) {
