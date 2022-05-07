@@ -20,6 +20,7 @@ Thise guide will explain how to fill out the three fields in credentials.txt
 - At this point you may want to hide your screen if you're live streaming this process  
 #### 3. Next, you need an OAUTH_TOKEN (this token allows the bot to read and send messages in your chat):
 
+_Please see the instructions below the URL to continue_
 ###### https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=joi6lzr5q685lmatb8ogacawohj6d3&redirect_uri=http://localhost:3000&scope=chat%3Aread+chat%3Aedit
 
 - Go to the url in your favorite browser
