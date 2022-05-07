@@ -20,7 +20,7 @@ Thise guide will explain how to fill out the three fields in credentials.txt
 - Go to the url in your favorite browser
 - Twitch will prompt you to authorize the bot application
 - After you press authorize, you are redirected to a different URL. _Ignore the message that says something went wrong (may say: This site can't be reached)_
-- On this web page, look at the searchbar, and copy and paste the access token from the URL
+- On this web page, look at the searchbar, and **ONLY** copy and paste the access token from the URL as shown below
 
 `http://localhost:3000/#access_token=` _<**this is your access token**>_ `&scope=chat%3Aread+chat%3Aedit&token_type=bearer`  
 _General note: be sure to remove the '< >' characters_
