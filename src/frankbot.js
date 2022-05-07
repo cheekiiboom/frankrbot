@@ -71,6 +71,7 @@ function onMessageHandler(target, context, msg, self) {
      * 
      */
     const randNum = Math.floor((Math.random() * 13) + 1);
+   
 
     // If the command is known, let's execute it
     if (commandName.includes("!define")) { // !define issued 
@@ -78,22 +79,22 @@ function onMessageHandler(target, context, msg, self) {
       define(target, context, msg, self);
 
     } else if(commandName.includes("!h")) {
-      client.say(target,"frankbot commands: !setfreq <respond every x # of messages>, !off [disable auto frankbot], !on [enable auto frankbot]");
-    } else if(commandName.includes("!off") && isMod) {
+      client.say(target,"frankbot commands: !setfreq <respond every x # of messages>, !offfrank [disable auto frankbot], !onfrank [enable auto frankbot]");
+    } else if(commandName.includes("!offfrank") && isMod) {
       client.say(target, "frankbot: Bye bye! OhMyDog");
       enabled = false;
-    } else if (commandName.includes("!on") && isMod) { 
+    } else if (commandName.includes("!onfrank") && isMod) { 
       client.say(target, "frankbot: I'm back! FrankerZ");      
       enabled = true;
     } else if (commandName.includes("!setfreq") && isMod) {
       const arg = commandName.substring("!setfreq ".length,commandName.length);
-      if(isNaN(arg)) {
+      if(isNaN(arg) || arg == '') {
         client.say(target,"!setfreq requires a number")
       } else if (arg >= 0){
         if(arg != 1) {
           client.say(target,"frankbot: I will try to respond every " + arg + " messages!")
         } else {
-          client.say(target,"frankbot: I will try to respond every " + arg + " messages!")
+          client.say(target,"frankbot: I will try to respond every " + arg + " message!")
         }
       } else {
         client.say(target,"frankbot: I can't go back in time!")        
@@ -105,22 +106,18 @@ function onMessageHandler(target, context, msg, self) {
     } else if (!enabled) {
       console.log("frankbot is disabled. use !on to re-enable")
     }
-    else if (commandName.includes("yay")) {
+    else if (commandName.includes("yay ")) { // responds if message contains 'yay '
       client.say(target, "yay " + context.username + "! OhMyDog")
     }
-    else if (numMsg % respondRate != 0 && respondRate != 0) { // break; from code
+    else if (numMsg % respondRate != 0 && respondRate != 0) { // waits for # of msgs to exceed response rate
       console.log("waiting...")
-    } 
-    // else if (context['emotes-raw'] != null) {
-    //   console.log("Discovered emote!");
-    //   client.say(target, "frankbot: "+msg);
-    // } 
-    else if (randNum < 4 && !commandName.includes("frankbot:")) { // FRANK-IFY MESSAGE
+    }
+    else if (randNum < 7 && !commandName.includes("frankbot:")) { // FRANK-IFY MESSAGE
       console.log("running Frank-ify");
 
       frank(target, context, msg, self);
 
-    } else if (randNum >= 4 && randNum <= 13 && !commandName.includes("frankbot:")) { // Runs if randNum is 
+    } else if (randNum >= 7 && randNum <= 13 && !commandName.includes("frankbot:")) { // Runs if randNum is 
       console.log("running emoji")
       emoji(target, context, msg, self);
 
@@ -190,10 +187,6 @@ async function define(target, context, msg, self) {
 
 // Function called 1 out of 20 messages
 async function frank(target, context, msg, self) {
-
-  // const string = ""+msg; // get chat msg
-  // const replaced = (string.replace(/[^a-z0-9 -]/gi, '')); // remove non-alphanumeric characters
-  // let sentence = replaced.split(" "); // split msg into array
   let sentence = getSplitArr(msg+"");
   var tagged = tagger.tag(sentence);
   var adjIndex = new Array(sentence.length);
@@ -202,11 +195,7 @@ async function frank(target, context, msg, self) {
           adjIndex[index] = true;
       }
   }
-  //console.log(adjIndex); // boolean array denoting if word is an adj
-
-  // const syn = str[str.length - 1].toLowerCase(); // make query word lower-case
-  let words = ""
-      ; // initialize output string
+  let words = ""; // initialize output string
   
   const data = [];
 
@@ -216,50 +205,50 @@ async function frank(target, context, msg, self) {
   const ants = [];
   let admitOut = false; 
 
-  for(let index = 0; index < adjIndex.length; index++) {
-      if(adjIndex[index]) {
-        console.log(sentence[index]);
-          const url = 'https://www.dictionaryapi.com/api/v3/references/thesaurus/json/' + sentence[index] + '?key=1e9ca186-79a5-4154-8da2-fe9da5f63738'; // api endpoint url
-          const response = await fetch(url); // urlfetch json
-          data[index] = await response.json(); // store json
+  for (let index = 0; index < adjIndex.length; index++) {
+    if (adjIndex[index]) {
+      //console.log(sentence[index]);
+      const url = 'https://www.dictionaryapi.com/api/v3/references/thesaurus/json/' + sentence[index] + '?key=1e9ca186-79a5-4154-8da2-fe9da5f63738'; // api endpoint url
+      const response = await fetch(url); // urlfetch json
+      data[index] = await response.json(); // store json
 
-          try {
-              row[index] = Math.floor(Math.random() * data[index][0]['meta']['ants'].length); // random row
-              col[index] = Math.floor(Math.random() * data[index][0]['meta']['ants'][0].length); // random col
-  
-              ants[index] = data[index][0]['meta']['ants'][row[index]][col[index]];       
-                       
-          } catch (error) {
-              admitOut = false;
-              console.log("ERROR: antonym(s) undefined | output: false");
-          }
+      try {
+        row[index] = Math.floor(Math.random() * data[index][0]['meta']['ants'].length); // random row
+        col[index] = Math.floor(Math.random() * data[index][0]['meta']['ants'][row[index]].length); // random col
+        
+        ants[index] = data[index][0]['meta']['ants'][row[index]][col[index]];
+        
+      } catch (error) {
+        admitOut = false;
+        console.log("ERROR: antonym(s) undefined | output: false");
       }
+    }
   }
 
-  
   for (let index = 0; index < sentence.length; index++) {
-    // console.log("WORDS: " + words);
-    if(adjIndex[index]) {
-        if(ants[index] == undefined) {
-            console.log("ERROR: undefined | using original word");
-            numMsg--;
-            words = words + (sentence[index] + "");
-        } else {
-            admitOut = true;
-            words = words + ants[index] +"";
-        }
+    if (adjIndex[index]) {
+      if (ants[index] == undefined) {
+        console.log("ERROR: undefined | using original word");
+        numMsg--;
+        words = words + (sentence[index] + "");
+      } else {
+        admitOut = true;
+        words = words + ants[index] + "";
+      }
     } else {
-      if(sentence[index].includes("-")) {
-        var temp = sentence[index].substring(1,sentence.length-1);
-        //console.log("sentence[index]: '" + temp+"'");
+      if (sentence[index].includes("-")) {
+        var temp = sentence[index].substring(1, sentence.length - 1);
         words = words + (temp + " ");
       } else {
         words = words + (sentence[index] + ""); // add pre-cursor words
       }
     }
-}
+  }
+  const frankEmotes = ["FrankerZ", "OhMyDog", "ResidentSleeper", "", "", ""];
+  const randEmote = Math.floor(Math.random() * frankEmotes.length);
+  console.log(randEmote)
   if (admitOut) {
-      client.say(target, "frankbot: "+words);
+    client.say(target, "frankbot: " + words + " " + frankEmotes[randEmote]);
   }
 }
 
@@ -277,26 +266,21 @@ function getSplitArr(str) {
   var joinInd = 0;
   const regex = /[\w\']/;
   var temp = "";
-  for(let index = 0; index < split.length; index++) {
-      if(regex.test(split[index])) {
-    //      console.log("' "+split[index]+" ' - alphanumeric character!");
-          temp = temp + split[index];
-          //console.log("split[index]: " + split[index]);
-          //console.log("temp: "+temp);
-      } else {
-  //        console.log("' "+split[index]+" ' - symbol or space!");
-          join[joinInd] = temp; // add temp to join arr
-          joinInd++;
-          join[joinInd] = "-"+split[index]; // now, add non-alphanum char to join arr
-          joinInd++;
-          temp = "";
-      }
-      if(index == split.length-1 && temp != "") {
-          //console.log("FINAL ITERATION");
-          join[joinInd] = temp;
-          joinInd++;
-          temp = "";
-      }
+  for (let index = 0; index < split.length; index++) {
+    if (regex.test(split[index])) {
+      temp = temp + split[index];
+    } else {
+      join[joinInd] = temp; // add temp to join arr
+      joinInd++;
+      join[joinInd] = "-" + split[index]; // now, add non-alphanum char to join arr
+      joinInd++;
+      temp = "";
+    }
+    if (index == split.length - 1 && temp != "") { // last iteration
+      join[joinInd] = temp;
+      joinInd++;
+      temp = "";
+    }
   }
   return join;
 }
