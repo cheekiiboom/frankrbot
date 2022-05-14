@@ -50,7 +50,7 @@ BOT_USERNAME=nodebot
 ```
 If all goes well, and frankbot takes life, type !h for more information :D OhMyDog
 
-# # Commands:
+## Commands:
 ```
 !h - Essential frankrbot commands
 !on - Enable frankrbot
@@ -62,7 +62,7 @@ If all goes well, and frankbot takes life, type !h for more information :D OhMyD
 
 ```
 
-# # Auto-behavior:
+## Auto-behavior:
 
 ```
 Emoj-ify - Replace the last word in a message with an emoji
