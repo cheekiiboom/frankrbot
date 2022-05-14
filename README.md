@@ -1,4 +1,4 @@
-# frankrbot v0.0.1 - CheekiiBoom
+# frankrbot v0.0.2 - CheekiiBoom
 
 Welcome to frankrbot!
 
