@@ -2,6 +2,11 @@
 
 Welcome to frankrbot!
 
+This bot is a js application which uses permission from Twitch to read and write chat messages.  
+frankrbot uses word APIs to analyze messages and create responses
+#### Current behaviour: convert some words in chat messages to their antonyms and find emojis related to the message  
+
+## Installation
 After downloading and extracting the zip files,
 this Twitch chat bot requires an edit to the contents of credentials.txt  
 Thise guide will explain how to fill out the three fields in credentials.txt
@@ -13,8 +18,9 @@ Thise guide will explain how to fill out the three fields in credentials.txt
 
 
 - At this point you may want to hide your screen if you're live streaming this process  
-#### 3. Next, you need an OAUTH_TOKEN (this token allows the bot access to read and send messages in your chat):
+#### 3. Next, you need an OAUTH_TOKEN (this token allows the bot to read and send messages in your chat):
 
+_Please see the instructions below the URL to continue_
 ###### https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=joi6lzr5q685lmatb8ogacawohj6d3&redirect_uri=http://localhost:3000&scope=chat%3Aread+chat%3Aedit
 
 - Go to the url in your favorite browser
