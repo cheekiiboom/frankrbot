@@ -43,3 +43,22 @@ OAUTH_TOKEN=1hd23jdijh3jjndf3j
 BOT_USERNAME=nodebot
 ```
 If all goes well, and frankbot takes life, type !h for more information :D OhMyDog
+
+# # Commands:
+```
+!h - Essential frankrbot commands
+!on - Enable frankrbot
+!off - Disable frankrbot
+!setfreq <positive number> - frankrbot response rate
+!about - A short description about frankrbot
+!define <word> - Returns a short definition
+!and <word> - frankrbot guesses the next 5 words
+
+```
+
+# # Auto-behavior:
+
+```
+Emoj-ify - Replace the last word in a message with an emoji
+Frank-ify - Replace the adjectives in a message with antonyms 
+```

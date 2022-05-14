@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 try {
-  const data = fs.readFileSync('credentials.txt', 'utf8');
+  const data = fs.readFileSync('src/credentials.txt', 'utf8');
   var lines = data.split(/\r?\n/);
   const consts = {
     CHANNEL_NAME: lines[0].substring(13,lines[0].length),
