@@ -2,8 +2,8 @@
 
 Welcome to frankrbot!
 
-This bot is a js application which uses permission from Twitch to read and write chat messages.  
-frankrbot uses word APIs to analyze messages and create responses
+This bot is a node js application which can read and write Twitch chat messages.  
+frankrbot utilizes word APIs to analyze messages and send responses
 #### Current behaviour: convert some words in chat messages to their antonyms and find emojis related to the message  
 
 ## Installation
