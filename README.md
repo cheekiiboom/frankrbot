@@ -13,10 +13,11 @@ Follow the steps below to fill out the three text fields in credentials.txt
 
 #### 1. Open the file, 'credentials.txt' in 'src'
 
-#### 2. Replace, CHANNEL_NAME, with your twitch username in lowercase (ex: nodemon0092)  
+#### 2. Replace, CHANNEL_NAME, with your twitch channel username in lowercase (ex: nodemon0092)  
 
 
-- At this point you may want to hide your screen if you're live streaming this process  
+- At this point you may want to hide your screen if you're live streaming this process 
+- Keep your OAUTH_TOKEN private! 
 #### 3. Next, you need an OAUTH_TOKEN (this token allows the bot to read and send messages in your chat):
 
 _Please see the instructions below the URL to continue_
