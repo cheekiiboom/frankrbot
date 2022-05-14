@@ -2,27 +2,29 @@
 const tmi = require('tmi.js');
 const fetch = require("node-fetch");
 var pluralize = require('pluralize');
-//var noun = require('wordnet');
 
-// env
+// env var
 require('dotenv').config();
 
+// Adjective identifier
 const natural = require('natural');
-//const wordnet = new natural.WordNet();
-
 const language = "EN"
 const defaultCategory = 'N';
 const defaultCategoryCapitalized = 'NNP';
-
 var lexicon = new natural.Lexicon(language, defaultCategory, defaultCategoryCapitalized);
 var ruleSet = new natural.RuleSet('EN');
 var tagger = new natural.BrillPOSTagger(lexicon, ruleSet);
+
+
+// BEFORE program start
+
+// PASSED prerequisites
 
 const {CHANNEL_NAME, OAUTH_TOKEN, BOT_USERNAME} = require ('./constants');
 const { username, channel } = require('tmi.js/lib/utils');
 const { followersmode } = require('tmi.js/lib/commands');
 
-// Define configuration options
+// Define config options
 const opts = {
   identity: {
     username: BOT_USERNAME,
@@ -47,17 +49,14 @@ client.connect();
 console.log("Connected to " + CHANNEL_NAME+"...");
 
 
-let numMsg = 0;
-let enabled = true;
-
-let respondRate = 0; // set to 5 
+let numMsg = 0; // # of non-bot messages since last response
+let enabled = true; // frankrbot status
+let respondRate = 0; // Message rate
 
 // Called every time a message comes in
 function onMessageHandler(target, context, msg, self) { // xx
 
-
-const message = msg;
-let valid = true;
+const message = msg.trim();
 let raw = "";
 let command = "";
 let argument = "";
@@ -72,7 +71,6 @@ let argument = "";
     argument = (obj[2])
 
   } catch (error) {
-    // console.log("Error with promise...")
     //return;
   }
 
@@ -83,15 +81,14 @@ let argument = "";
     numMsg++;
 
     // Remove whitespace from chat message
-    const commandName = msg.trim() + ""; 
+    const message = msg.trim(); 
 
     // Check if messager is a moderator
     
     let isMod = false;
     if(context['badges-raw'] != null) {
-      isMod = context['badges-raw'].includes("broadcaster") || context['badges-raw'].includes("moderator");
-    } else {
-      isMod = false;
+      isMod = context['badges-raw'].includes("broadcaster")
+       || context['badges-raw'].includes("moderator");
     }
 
     /**
@@ -100,89 +97,89 @@ let argument = "";
      * Generate a random number
      * 
      */
-    const randNum = Math.floor((Math.random() * 13) + 1);
+    const randNum = Math.floor((Math.random() * 100) + 1);
 
     // If the command is known, let's execute it
-    if (commandName.includes("!define")) { // !define issued 
+    if (message.includes("!define")) { // Get definition
+      define(target, message);
 
-      define(target, context, msg, self);
-
-    } else if  (commandName.includes("!hops")) {
+    } else if  (message.localeCompare("!hops") == 0) { // Say hops
       client.say(target, "Yay hops! 🐇");
-    } else if (commandName.includes("!kaka")) {
-      client.say(target, "💩💩💩");
-    } else if (commandName.includes("!and ")) {
-      and(target, argument, 6);
-    }
 
-    else if(commandName.localeCompare("!about" == 0)) {
+    } else if (message.localeCompare("!kaka") == 0) { // Say kaka
+      client.say(target, "💩💩💩");
+
+    } else if (message.includes("!and ")) { // Create a string of words
+      and(target, argument, 6);
+      
+    } else if(message.localeCompare("!about") == 0) {
       client.say(target,"Hi! I'm frankrbot, a chat bot based on the one and only, frankfrodz OhMyDog")
-    }
-    else if(commandName.localeCompare("!h") == 0) {
+
+    } else if(message.localeCompare("!h") == 0) {
       client.say(target,"/me commands: !setfreq <respond every x # of messages>, !off [disable frankrbot], !on [enable frankrbot]");
-    } else if(commandName.includes("!off") && isMod) {
+
+    } else if(message.includes("!off") && isMod) {
       client.say(target, "Bye bye! OhMyDog");
       enabled = false;
-    } else if (commandName.includes("!on") && isMod) { 
+
+    } else if (message.includes("!on") && isMod) { 
       client.say(target, "I'm back! FrankerZ");      
       enabled = true;
-    } else if (commandName.includes("!setfreq ") && isMod) {
-      const arg = commandName.substring("!setfreq ".length,commandName.length);
-      if(isNaN(arg) || arg == '') {
-        client.say(target,"!setfreq requires a number")
-      } else if (arg >= 0){
-        if(arg != 1) {
-          client.say(target,"I will try to respond every " + arg + " messages!")
-        } else {
-          client.say(target,"I will try to respond every " + arg + " message!")
-        }
-      } else {
-        client.say(target,"I can't go back in time!")        
+      
+    } else if (message.includes("!setfreq ") && isMod) {
+      // Get integer argument
+      const arg = message.substring("!setfreq ".length,message.length);
+      const num = setFreq(arg);
+
+      if(num == -1) {
+        client.say(target,"'!setfreq' requires a positive number")
+        return;
       }
+      
+      client.say(target, "I'll try to respond every " + arg + " message(s)!")
       respondRate = arg;
     }
-    else if (commandName.substring(0, 1) === "!") { // ! used, but not recognized
+    else if (message.substring(0, 1) === "!") { // ! used, but not recognized
       console.log("! - unknown command");
+
     } else if (!enabled) {
       console.log("frankrbot is disabled. use !on to re-enable")
-    }
-    else if (numMsg % respondRate != 0 && respondRate != 0) { // waits for # of msgs to exceed response rate
-      console.log("waiting...")
-    }
-    else if (commandName.includes("pierogi")) {
-      console.log(`numMsg: ${numMsg} | respondRate: ${respondRate}`)
+
+    } else if (numMsg % respondRate != 0 && respondRate != 0) { // # of messages < response rate
+      console.log("Waiting...")
+      
+    } else if (message.includes("pierogi")) {
       client.say(target, "Yay pierogis! 🥟 🥟 🥟")
-    }
-    else if (commandName.includes("yay ")) { // responds if message contains 'yay '
+
+    } else if (message.includes("yay ")) {
       client.say(target, " yay " + context.username + "! OhMyDog")
+
     }
-    else if ((commandName.includes("papaya") || commandName.includes("cookie") || commandName.includes("mango")) && numMsg >= respondRate) {
-      if (commandName.includes("papaya")) {
-        client.say("mmm delicious papaya! FrankerZ")
-      } else if (commandName.includes("cookie")) {
-        client.say("mmm delicious papaya! OhMyDog")
-      } else {
-        client.say("mmm delicious papaya! ChefFrank")
-      }
-    } 
+
+    
 
     // AUTO BEHAVIOR
-    else if (randNum < 8) { // FRANK-IFY MESSAGE
-      console.log("running Frank-ify");
+    else if (randNum <= 80) { // FRANK-IFY MESSAGE
+      console.log("Frank-ifying...");
+      frank(target, message);
       
-      frank(target, context, msg, self);
-      
-    } else if (randNum >= 8 && randNum <= 13) { // Runs if randNum is 
-      
-      console.log("running emoji")
-      emoji(target, context, msg, self);
-      
+    } else if (randNum > 80) { 
+      console.log("Emoji-fying...")
+      emoji(target, message);
     } 
     else {
       console.log("running no commands")
-      //
     }
   }
+}
+
+// Functions
+function setFreq(arg) {
+  if(isNaN(arg) || arg == '' || arg < 0) {
+    return -1;
+  } 
+  
+  return arg
 }
 
 // get command args
@@ -192,25 +189,24 @@ function getArgs(message) {
 }
 
 /**
- * Makes an api call with argument
- * @param {String} rawUrl 
- * @param {String} arg 
+ * Fetches JSON response from an API endpoint url
+ * @param {String} rawUrl url with 'RPLCE' in place of the search query
+ * @param {String} arg search query
+ * @returns JSON object
  */
-async function callAPI(rawUrl, arg) { // rawUrl with delimiter, "RPLCE"
+async function callAPI(rawUrl, arg) {
   const url = rawUrl.replace("RPLCE",arg); // api endpoint url
-  console.log("URL: " + url)
-  const response = await fetch(url); // urlfetch json
+  const response = await fetch(url); // fetch json
   const data = await response.json(); // store json
 
   return data;
 }
 
-// API adds extra words to your word
 /**
- * 
- * @param {*} target 
- * @param {String} argument 
- * @param {int} x 
+ * Strings together words that commonly follower one another
+ * @param {*} target 1st parameter for .say()
+ * @param {String} argument English word
+ * @param {int} x Number
  */
 async function and(target, argument, x) {
 
@@ -227,35 +223,30 @@ async function and(target, argument, x) {
   // arg: 'vice' --> return: 'president'
   const newUrl = 'https://api.datamuse.com/words?rel_bga=RPLCE'; // v2; replace query with RPLCE
 
-  let data = {}
+  let data = await callAPI(newUrl, arg)
 
-  try { // try getting a 'word'
-    let fol = [] // the result word
+  try {
+    let wordsIndex = 0; // Which word to choose from JSON response
+    let fol = [] // following words
 
-    let tempIter = 0;
     for (let index = 0; fol.length < x; index++) {
-      if (index == 0) {
-        temp = await callAPI(newUrl, arg);
-      } else if (fol.length > 0 && tempIter == 0) {
-        temp = await callAPI(newUrl, fol[fol.length - 1]);
-        // console.log("Searching '"+fol[fol.length-1]+"'")
+      if (wordsIndex == 0 && index != 0) {
+        data = await callAPI(newUrl, fol[fol.length - 1]);
       }
 
-      if (ignore.includes(temp[tempIter]['word'])) {
-        tempIter++;
+      if (ignore.includes(data[wordsIndex]['word'])) {
+        wordsIndex++;
       } else {
-        fol.push(temp[tempIter]['word'])
-        tempIter = 0;
+        fol.push(data[wordsIndex]['word'])
+        wordsIndex = 0;
       }
     }
-
-    fol[0] == "" ? fol.push(data[0]['word']) : 0; // failed to get a non-blacklisted word
 
     let out = ""
-    for(let index = 0; index < fol.length; index++) {
-      out = out + fol[index] + " ";
-    }
-    client.say(target, argument+" "+out); // definition successful, output to chat
+    fol.forEach(word => {
+      out = `${out} ${word} `;
+    });
+    client.say(target, `${argument} ${out}`); // Send message
   } catch (error) {
     // console.log("ERROR: getting following word");
     // console.log(error)
@@ -264,150 +255,163 @@ async function and(target, argument, x) {
 
 
 // Function called 19 times out every 20 messages
-async function emoji(target, context, msg, self) {
-  const string = ""+msg; // get chat msg
-  const replaced = (string.replace(/[^a-z0-9 -]/gi, '').toLowerCase()); // remove non-alphanumeric characters
+/**
+ * Emoj-ify one of your words
+ * @param {*} target
+ * @param {String} msg 
+ */
+async function emoji(target, msg) {
+  const replaced = (msg.replace(/[^a-z0-9 -]/gi, '').toLowerCase()); // remove non-alphanumeric characters
   const words = replaced.split(" ");
-  const first = pluralize.singular(words[words.length-1]); 
+  const last = pluralize.singular(words[words.length-1]); 
   // initialize output string
-  const url = 'https://emoji-api.com/emojis?search='+first+'&access_key=d60e89d09de78f297a74a57b3029b0dea67dd338'; // api endpoint url
-  const response = await fetch(url); // urlfetch json
-  const data = await response.json(); // store json
-
-  try { // try getting first emoji from json
-      const rand = Math.floor(Math.random() * data.length);
-      const emoji = data[rand]['character'];
-      client.say(target, ""+emoji+"");
-      console.log(emoji); // output to chat
-  } catch (error) {
-      console.log("ERROR: could not find emoji");
-  }
   
+  const url = 'https://emoji-api.com/emojis?search=RPLCE&access_key=d60e89d09de78f297a74a57b3029b0dea67dd338'; // api endpoint url
+  const data = await callAPI(url, last);
+
+
+  try { // random emoji from json response
+    const rand = Math.floor(Math.random() * data.length);
+    const emoji = data[rand]['character'];
+    client.say(target, emoji);
+  } catch (error) {
+    console.log("Emoji-fy failed!");
+  }
 }
 
 // Function called when the "define" is issued
-async function define(target, context, msg, self) {
-  const defCMD = "!define";
-  msg.trim();
-  const string = ""+msg.substring(defCMD.length, msg.length); // get chat msg
-  const replaced = (string.replace(/[^a-z0-9-]/gi, '').toLowerCase()); // remove non-alphanumeric characters
-  const first = replaced.split(" ")[0];
-  // initialize output string
-  const url = 'https://www.dictionaryapi.com/api/v3/references/thesaurus/json/' + first + '?key=1e9ca186-79a5-4154-8da2-fe9da5f63738'; // api endpoint url
-  const response = await fetch(url); // urlfetch json
-  const data = await response.json(); // store json
+/**
+ * Gives a short definition of a word
+ * @param {*} target 1st parameter of .say()
+ * @param {String} msg word to define
+ */
+async function define(target, msg) {
+  // Get message argument
+  const word = getArgs(msg)[2].toLowerCase();
 
-  try { // try getting 'shortdef' from json
+  // Make an API request
+  const url = 'https://www.dictionaryapi.com/api/v3/references/thesaurus/json/RPLCE?key=1e9ca186-79a5-4154-8da2-fe9da5f63738'; // api endpoint url
+  const data = await callAPI(url, word)
+  
+  // Define a couple of error responses
+  const errResponses = ["Either, " + word + ", is not a word, or I should read more...",
+  "I didn't know we were making up words!", "I'm feeling sleepy; maybe try a different word?"];
+  const randResponse = errResponses[Math.floor(Math.random() * errResponses.length)]; // gen rand response
+  
+  try { // Try getting a short definition from JSON
     const def = data[0]['shortdef'][0];
-    client.say(target, first + ": " + def); // definition successful, output to chat
+    client.say(target, `${word}: ${def}`); // Outputting definition
   } catch (error) {
-    console.log("ERROR: getting definition");
-    const errResponses = ["Either, " + first + ", is not a word, or I should read more...", "I didn't know we were making up words!", "I'm feeling sleepy; maybe try a different word?"];
-    const randResponse = errResponses[Math.floor(Math.random() * errResponses.length)]; // gen rand response
-    //console.log(randResponse);
     client.say(target, randResponse);
-    
   }
-
 }
 
-// Function called 1 out of 20 messages
-async function frank(target, context, msg, self) {
-  let sentence = getSplitArr(msg+"");
+function getADJ(sentence) {
   var tagged = tagger.tag(sentence);
   var adjIndex = new Array(sentence.length);
   for (let index = 0; index < sentence.length; index++) {
-    if (tagged['taggedWords'][index]['tag'] == 'JJ' || tagged['taggedWords'][index]['tag'] == 'RB') { 
-          adjIndex[index] = true;
-      }
+    if (tagged['taggedWords'][index]['tag'] == 'JJ' 
+    || tagged['taggedWords'][index]['tag'] == 'RB'
+    || tagged['taggedWords'][index]['tag'] == 'DT'
+    || tagged['taggedWords'][index]['tag'] == 'NN'
+    || tagged['taggedWords'][index]['tag'] == 'UH') { 
+      adjIndex[index] = true;
+    }
   }
+  return adjIndex;
+}
+
+/**
+ * Replace words in a sentence with their antonyms
+ * @param {*} target 1st parameter of .say() 
+ * @param {String} msg viewer message
+ */
+async function frank(target, msg) {
+  // Some of frank's signature emotes
+  const frankEmotes = ["FrankerZ", "OhMyDog", "ResidentSleeper", "PogBones", "CaitlynS ", "", ""];
+  const randEmote = Math.floor(Math.random() * frankEmotes.length);
+
+  let sentence = getSplitArr(msg);
+  const adjIndex = getADJ(sentence) // Gets an array of adjectives
+  
   let words = ""; // initialize output string
-
-  const row = [];
-  const col = [];
-
   const ants = [];
   let admitOut = false; 
+  const rawUrl = 'https://api.datamuse.com/words?rel_ant=RPLCE'; // api endpoint url
 
+  // Make API requests and build the antonyms array
   for (let index = 0; index < adjIndex.length; index++) {
     if (adjIndex[index]) {
-      const rawUrl = 'https://api.datamuse.com/words?rel_ant=RPLCE'; // api endpoint url
       data = await callAPI(rawUrl, String(sentence[index]));
-      // const response = await fetch(url); // urlfetch json
-      // data = await response.json(); // store json
-
       try {
-        //console.log(sentence[index])
-        if(data[0]['word'].length < data[1]['word'].length) { // data[0] is less words than data[1]
+        if (data.length == 1) { // Only one word in the JSON response
           ants[index] = data[0]['word'];
-        } else {
-          ants[index] = data[1]['word'];
+          continue;
         }
+
+        if (data[0]['word'].length < data[1]['word'].length) { // first word is fewer letters than second word
+          ants[index] = data[0]['word'];
+          continue;
+        } 
+        
+        ants[index] = data[1]['word'];
         
       } catch (error) {
         admitOut = false;
-        console.log("ERROR: '"+ sentence[index] + "' undefined | output: false");
+        console.log("ERROR: 'word' undefined | output: false");
       }
     }
   }
 
-  for (let index = 0; index < sentence.length; index++) {
+  sentence.forEach(function callback(letter, index) {
     if (adjIndex[index]) {
       if (ants[index] == undefined) {
-        console.log("ERROR: undefined | using original word");
-        words = words + (sentence[index] + "");
+        words = `${words} ${letter}`;
       } else {
         admitOut = true;
-        words = words + ants[index] + "";
+        words = `${words} ${ants[index]}`
       }
     } else {
-      if (sentence[index].includes("-")) {
-        var temp = sentence[index].substring(1, sentence.length - 1);
-        words = words + (temp + " ");
+      if (letter.includes("-")) {
+        var temp = letter.substring(1, sentence.length - 1);
+        words += `${temp} `;
       } else {
-        words = words + (sentence[index] + ""); // add pre-cursor words
+        words += letter; // add pre-cursor words
       }
     }
-  }
-  const frankEmotes = ["FrankerZ", "OhMyDog", "ResidentSleeper", "", ""];
-  const randEmote = Math.floor(Math.random() * frankEmotes.length);
+  });
   if (admitOut) {
-    client.say(target, "" + words + " " + frankEmotes[randEmote]);
+    client.say(target, `${words} ${frankEmotes[randEmote]}`);
   } else {
     console.log("Frank-ify failed!")
+    console.log("Emoji-fying...")
+    emoji(target,msg)
   }
-}
-
-
-// Function called when the "dice" command is issued
-function rollDice () {
-  const sides = 6;
-  return Math.floor(Math.random() * sides) + 1;
 }
 
 // return an array of strings and characters
 function getSplitArr(str) {
   var split = str.split("");
-  var join = [""];
+  var join = [];
   var joinInd = 0;
   const regex = /[\w\']/;
-  var temp = "";
-  for (let index = 0; index < split.length; index++) {
-    if (regex.test(split[index])) {
-      temp = temp + split[index];
+  var word = "";
+  split.forEach(function callback(letter, index) {
+    if (regex.test(letter)) {
+      word += letter;
     } else {
-      join[joinInd] = temp; // add temp to join arr
+      join[joinInd] = word; // add word to join arr
       joinInd++;
-      join[joinInd] = "-" + split[index]; // now, add non-alphanum char to join arr
+      join[joinInd] = `-${letter}`; // now, add non-alphanum char to join arr with '-'
       joinInd++;
-      temp = "";
+      word = "";
     }
-    if (index == split.length - 1 && temp != "") { // last iteration
-      join[joinInd] = temp;
+    if (index == split.length - 1 && word != "") { // last iteration
+      join[joinInd] = word;
       joinInd++;
-      temp = "";
+      word = "";
     }
-  }
+  });
   return join;
 }
 
