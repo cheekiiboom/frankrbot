@@ -8,7 +8,7 @@ frankrbot utilizes word APIs to analyze messages and send tasteful responses
 ## Installation
 After downloading and extracting the zip files,
 this Twitch chat bot requires an edit to the contents of credentials.txt  
-Thise guide will explain how to fill out the three fields in credentials.txt
+Follow the steps below to fill out the three text fields in credentials.txt
 
 
 #### 1. Open the file, 'credentials.txt' in 'src'
