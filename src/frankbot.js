@@ -23,6 +23,7 @@ var tagger = new natural.BrillPOSTagger(lexicon, ruleSet);
 const {CHANNEL_NAME, OAUTH_TOKEN, BOT_USERNAME} = require ('./constants');
 const { username, channel } = require('tmi.js/lib/utils');
 const { followersmode } = require('tmi.js/lib/commands');
+const { words } = require('natural/lib/natural/util/stopwords');
 
 // Define config options
 const opts = {
@@ -222,19 +223,19 @@ async function and(target, argument, x) {
   // rel_gba: words that commonly follow the ${arg} 
   // arg: 'vice' --> return: 'president'
   const newUrl = 'https://api.datamuse.com/words?rel_bga=RPLCE'; // v2; replace query with RPLCE
-
+  
   let data = await callAPI(newUrl, arg)
-
+  
   try {
     let wordsIndex = 0; // Which word to choose from JSON response
     let fol = [] // following words
-
+    
     for (let index = 0; fol.length < x; index++) {
       if (wordsIndex == 0 && index != 0) {
         data = await callAPI(newUrl, fol[fol.length - 1]);
       }
-
-      if (ignore.includes(data[wordsIndex]['word'])) {
+      
+      if (ignore.includes(data[wordsIndex]['word']) || /\d/.test(data[wordsIndex]['word'])) {
         wordsIndex++;
       } else {
         fol.push(data[wordsIndex]['word'])
@@ -243,16 +244,16 @@ async function and(target, argument, x) {
     }
 
     let out = ""
-    fol.forEach(function callback(word, index) {
-      if(isNoun(word) && index > 4 || index > 4) {
+    for (let index = 0; index < fol.length; index++) {
+      if(isNoun(fol[index]) && index > 4 || index > 4) {
       } else {
-        out = `${out} ${word} `;
+        out += `${fol[index]} `;
       }
-    });
+    }
     client.say(target, `${argument} ${out}`); // Send message
   } catch (error) {
     // console.log("ERROR: getting following word");
-    // console.log(error)
+    console.log(error)
   }
 }
 
