@@ -211,7 +211,7 @@ async function callAPI(rawUrl, arg) {
 async function and(target, argument, x) {
 
   // Words to ignore
-  const ignore = ["and","the","a","to","for","in","is","of","that","with","on","his","i","he"];
+  const ignore = ["and","the","a","to","for","in","is","of","that","with","on","his","i","he","are","not","be","used","as","was","had","has","been","made","by","at","or","would","which","were","up","from","than","one","period","when","any","other","it"];
   
   // isolate first argument
   let arg = argument.split(" ")[0]
@@ -243,8 +243,11 @@ async function and(target, argument, x) {
     }
 
     let out = ""
-    fol.forEach(word => {
-      out = `${out} ${word} `;
+    fol.forEach(function callback(word, index) {
+      if(isNoun(word) && index > 4 || index > 4) {
+      } else {
+        out = `${out} ${word} `;
+      }
     });
     client.say(target, `${argument} ${out}`); // Send message
   } catch (error) {
@@ -304,6 +307,19 @@ async function define(target, msg) {
   } catch (error) {
     client.say(target, randResponse);
   }
+}
+/**
+ * Check if a word is a noun
+ * @param {String} word 
+ * @returns boolean
+ */
+function isNoun(word) {
+  const wordArr = [word]
+  var tagged = tagger.tag(wordArr);
+    if (tagged['taggedWords'][0]['tag'] == 'NN') { 
+      return true;
+    }
+  return false;
 }
 
 function getADJ(sentence) {

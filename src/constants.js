@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 try {
-  const data = fs.readFileSync('credentials.txt', 'utf8'); // Get data from .txt
+  const data = fs.readFileSync('src/credentials.txt', 'utf8'); // Get data from .txt
   var rows = data.split(/\r?\n/); // Split by row
 
   // Set environment variables
